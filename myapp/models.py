@@ -3,9 +3,9 @@ from django.utils.text import slugify
 
 
 class Person(models.Model):
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    birth_date = models.DateField()
+    first_name = models.CharField(max_length=255, default='Unknown')
+    last_name = models.CharField(max_length=255, default='Unknown')
+    birth_date = models.DateField(default='2024-01-01')
 
     def baby_boomer_status(self):
         "Returns the person's baby-boomer status."
