@@ -1,9 +1,16 @@
+import datetime
+
 from django.db.models import F
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
+
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
+from django.test import SimpleTestCase, override_settings
+from django.urls import path
 
 from .models import Choice, Question
 
@@ -56,4 +63,31 @@ def vote(request, question_id):
         return HttpResponseRedirect(reverse("tutorial:results", args=(question.id,)))
 
 
+def response_error_handler(request, exception=None):
+    return HttpResponse("Error handler content", status=403)
 
+
+def permission_denied_view(request):
+    raise PermissionDenied
+
+
+urlpatterns = [
+    path("403/", permission_denied_view),
+]
+
+handler403 = response_error_handler
+
+
+# ROOT_URLCONF must specify the module that contains handler403 = ...
+@override_settings(ROOT_URLCONF=__name__)
+class CustomErrorHandlerTests(SimpleTestCase):
+    def test_handler_renders_template_response(self):
+        response = self.client.get("/403/")
+        # Make assertions on the response here. For example:
+        self.assertContains(response, "Error handler content", status_code=403)
+
+
+async def current_datetime(request):
+    now = datetime.datetime.now()
+    html = "<html><body>It is now %s.</body></html>" % now
+    return HttpResponse(html)
