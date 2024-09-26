@@ -5,6 +5,7 @@ from http import HTTPStatus
 from django.db.models import F
 from django.http import HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
@@ -120,3 +121,21 @@ class MultipleProxyMiddleware:
 
 class HttpResponseNoContent(HttpResponse):
     status_code = HTTPStatus.NO_CONTENT
+
+
+def do_post_processing():
+    pass
+
+
+def my_render_callback(response):
+    # Do content-sensitive processing
+    do_post_processing()
+
+
+def my_view(request):
+    # Create a response
+    response = TemplateResponse(request, "mytemplate.html", {})
+    # Register the callback
+    response.add_post_render_callback(my_render_callback)
+    # Return the response
+    return response
