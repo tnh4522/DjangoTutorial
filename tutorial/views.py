@@ -1,7 +1,9 @@
+import asyncio
 import datetime
+from http import HTTPStatus
 
 from django.db.models import F
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
@@ -91,3 +93,30 @@ async def current_datetime(request):
     now = datetime.datetime.now()
     html = "<html><body>It is now %s.</body></html>" % now
     return HttpResponse(html)
+
+
+class MultipleProxyMiddleware:
+    FORWARDED_FOR_FIELDS = [
+        "HTTP_X_FORWARDED_FOR",
+        "HTTP_X_FORWARDED_HOST",
+        "HTTP_X_FORWARDED_SERVER",
+    ]
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        """
+        Rewrites the proxy headers so that only the most
+        recent proxy is used.
+        """
+        for field in self.FORWARDED_FOR_FIELDS:
+            if field in request.META:
+                if "," in request.META[field]:
+                    parts = request.META[field].split(",")
+                    request.META[field] = parts[-1].strip()
+        return self.get_response(request)
+
+
+class HttpResponseNoContent(HttpResponse):
+    status_code = HTTPStatus.NO_CONTENT
