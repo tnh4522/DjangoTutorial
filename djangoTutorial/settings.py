@@ -35,7 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tutorial.apps.TutorialConfig'
+    'tutorial.apps.TutorialConfig',
+    "polls.apps.PollsConfig"
 ]
 
 MIDDLEWARE = [
@@ -63,13 +64,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
         },
-    },
-    {
-        "BACKEND": "django.template.backends.jinja2.Jinja2",
-        "DIRS": [
-            "/home/html/jinja2",
-        ],
-    },
+    }
 ]
 
 WSGI_APPLICATION = 'djangoTutorial.wsgi.application'
